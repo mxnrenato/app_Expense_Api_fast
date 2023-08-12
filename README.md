@@ -15,4 +15,4 @@ uvicorn main:app --reload --port 5000
 - http://127.0.0.1:5000/usuarios
 
 ## Herramientas a utilizar:
-PgAdmin PyCharm Python 3.10.x
+SQLite PyCharm Python 3.10.x
