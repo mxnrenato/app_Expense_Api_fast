@@ -2,7 +2,8 @@
 python -m venv nombredelentorno
 
 ## 2.- Activar el entorno virtual
-source nombredelentorno/Scripts/activate (Windows) source nombredelentorno/bin/activate (Linux)
+- source nombredelentorno/Scripts/activate (Windows)
+- source nombredelentorno/bin/activate (Linux)
 
 ## 3.- Instalar los paquetes desde requirements.txt
 python -m pip install -r requirements.txt
