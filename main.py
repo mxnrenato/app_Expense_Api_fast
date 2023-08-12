@@ -3,7 +3,7 @@ from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 from typing import Optional, List
 from config.database import Session, engine, Base
-from models.modelos import Usuarios as UsuariosModel, Gastos as GastosModel
+from models.modelos import Usuarios as UsuariosModel, Gastos as GastosModel,Ingresos as IngresosModel
 #from models.modelos import Ingresos as IngresosModel
 from fastapi.encoders import jsonable_encoder
 
@@ -55,9 +55,15 @@ class Gasto(BaseModel):
             }
         }
 
+
+
 @app.get('/', tags=['home'])
 def message():
     return "Hello world!"
+
+#--------------------------------------------------------------------------------------------------------
+#Tabla usuarios------------------------------------------------------------------
+#Método get--------
 
 @app.get('/usuarios', tags=['usuarios'], response_model=List[Usuario], status_code=200)
 def get_usuarios() -> List[Usuario]:
@@ -97,7 +103,9 @@ def delete_usuarios(cedula: int)-> dict:
     db.delete(result)
     db.commit()
     return JSONResponse(status_code=200, content={"message": "Se ha eliminado el usuario"})
-
+    #----------------------------------------------------------------------------------------------
+#-------------Gastos---------------------------------------------------------------
+#Método post Gastos----------------------
 @app.post('/gastos', tags=['gastos'], response_model=dict, status_code=201)
 def create_gastos(gastos: Gasto) -> dict:
     db = Session()
@@ -105,3 +113,37 @@ def create_gastos(gastos: Gasto) -> dict:
     db.add(new_gastos)
     db.commit()
     return JSONResponse(status_code=201, content={"message": "Se ha registrado el gasto"})
+
+#Método get de gastos----------------
+@app.get('/gastos', tags=['gastos'], response_model=List[Gasto], status_code=200)
+def get_gastos() -> List[Gasto]:
+    db = Session()
+    result = db.query(GastosModel).all()
+    return JSONResponse(status_code=200, content = jsonable_encoder(result))
+
+#Método put de gastos------------------
+
+@app.put('/gastos/{idgastos}', tags=['gastos'], response_model=dict, status_code=200)
+def update_gastos(idgastos: int, gasto: Gasto)-> dict:
+    db = Session()
+    result = db.query(GastosModel).filter(GastosModel.idgastos == idgastos).first()
+    if not result:
+        return JSONResponse(status_code=404, content={'message': "No encontrado"})
+   # result.idgastos=Gasto.idgastos
+    #result.idusuariogastos=Gasto.idusuariogastos
+    result.categoria= gasto.categoria
+    result.valor = gasto.valor
+    result.fechagasto = gasto.fechagasto
+    db.commit()
+    return JSONResponse(status_code=200, content={"message": "Se ha modificado los gastos"})
+#-----------------------------------------
+#Método DELETE de gastos
+@app.delete('/gastos/{idgastos}', tags=['gastos'], response_model=dict, status_code=200)
+def delete_gastos(idgastos: int)-> dict:
+    db = Session()
+    result = db.query(GastosModel).filter(GastosModel.idgastos == idgastos).first()
+    if not result:
+        return JSONResponse(status_code=404, content={'message': "No encontrado"})
+    db.delete(result)
+    db.commit()
+    return JSONResponse(status_code=200, content={"message": "Se ha eliminado el gasto"})
