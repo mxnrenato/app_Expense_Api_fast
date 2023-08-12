@@ -3,7 +3,7 @@ from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 from typing import Optional, List
 from config.database import Session, engine, Base
-from models.modelos import Usuarios as UsuariosModel
+from models.modelos import Usuarios as UsuariosModel, Gastos as GastosModel
 #from models.modelos import Ingresos as IngresosModel
 from fastapi.encoders import jsonable_encoder
 
@@ -37,18 +37,23 @@ class Usuario(BaseModel):
             }
         }
 
-usuario = [
-    {
-    "nombres":"Jessica",
-    "apellidos": "Yandun",
-    "cedula": 1459856256,
-    "email": "jessica@email.com",
-    "password": "jessica",
-    "fechanacimiento": "2003-08-09",
-    "direccion": "CIUDADELA UNIVERSITARIOS",
-    "telefono": 983652147
-    }
-]
+class Gasto(BaseModel):
+        
+    idgastos: int 
+    idusuariogastos: int
+    categoria: str = Field(min_length=0, max_length=100)
+    valor: float
+    fechagasto: str = Field(min_length=0, max_length=100)
+    class Config:
+        schema_extra = {
+            "example": {
+                "idgastos": 1,
+                "idusuariogastos": 1751112839,
+                "categoria": "Sueldo",
+                "valor": 454.32,
+                "fechagasto": "2023-01-01"
+            }
+        }
 
 @app.get('/', tags=['home'])
 def message():
@@ -92,3 +97,11 @@ def delete_usuarios(cedula: int)-> dict:
     db.delete(result)
     db.commit()
     return JSONResponse(status_code=200, content={"message": "Se ha eliminado el usuario"})
+
+@app.post('/gastos', tags=['gastos'], response_model=dict, status_code=201)
+def create_gastos(gastos: Gasto) -> dict:
+    db = Session()
+    new_gastos = GastosModel(**gastos.dict())
+    db.add(new_gastos)
+    db.commit()
+    return JSONResponse(status_code=201, content={"message": "Se ha registrado el gasto"})
