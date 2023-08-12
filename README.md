@@ -1,3 +1,5 @@
+## Clonar el Repositorio
+
 ## 1.- Crear el entorno virtual
 python -m venv nombredelentorno
 
